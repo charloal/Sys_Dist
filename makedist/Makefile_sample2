@@ -1,0 +1,9 @@
+list.txt : list1.txt list2.txt
+	rm list1.txt list2.txt
+
+list1.txt: list1.xxx
+	touch list1.txt
+
+list2.txt:
+	touch list2.txt
+	

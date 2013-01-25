@@ -1,0 +1,6 @@
+charloal@ensipc107:~/partage/makedist$ ./makedist Makefile_sample > graph.dot
+charloal@ensipc107:~/partage/makedist$ dot graph.dot  -Tpng > graph.png
+charloal@ensipc107:~/partage/makedist$ shotwell graph.png 
+
+
+chdir
