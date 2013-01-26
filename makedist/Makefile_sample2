@@ -1,9 +1,8 @@
 list.txt : list1.txt list2.txt
 	rm list1.txt list2.txt
 
-list1.txt: list1.xxx
+list1.txt: list2.txt
 	touch list1.txt
 
 list2.txt:
-	touch list2.txt
-	
+	touch list2.txt ; echo "a" > list2.txt

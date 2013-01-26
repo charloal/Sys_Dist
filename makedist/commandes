@@ -3,4 +3,4 @@ charloal@ensipc107:~/partage/makedist$ dot graph.dot  -Tpng > graph.png
 charloal@ensipc107:~/partage/makedist$ shotwell graph.png 
 
 
-chdir
+mpirun -np 2 --hostfile hostfile.txt makedist Makefile_sample2
