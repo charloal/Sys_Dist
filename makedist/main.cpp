@@ -26,8 +26,16 @@ Node *root = NULL;
 
 string read_file(string name)
 {
-	ifstream in_file(name.c_str());
-	string data (istreambuf_iterator<char>(in_file), (istreambuf_iterator<char>()));
+	ifstream in_file;
+	in_file.open(name.c_str());
+	string data ="", temp="";
+	while (!in_file.eof())
+	{	 
+	  getline (in_file, temp);
+	   data.append(temp);
+	   data.append("\n");
+	}
+	in_file.close();
 	return data;
 }
 
@@ -72,9 +80,9 @@ void activate(Node *node)
 void send_string(string object, int source, int tag)
 {
 	size_t object_size = object.size() + 1;
-	char* object_copy = (char*)malloc(sizeof(char)*(object_size+1));
-	strncpy(object_copy, object.c_str(), object_size+1);
-	MPI_Send(object_copy, object_size+1, MPI_CHAR, source, tag, MPI_COMM_WORLD);
+	char* object_copy = (char*)malloc(sizeof(char)*(object_size));
+	strncpy(object_copy, object.c_str(), object_size);
+	MPI_Send(object_copy, object_size, MPI_CHAR, source, tag, MPI_COMM_WORLD);
 	free(object_copy);
 }
 
@@ -116,7 +124,7 @@ void slave()
 		    	command = (char*)malloc(sizeof(char)*(size_command+1));
 			MPI_Recv(command, size_command+1, MPI_CHAR, source, MPI_ANY_TAG, MPI_COMM_WORLD, &status);	
 			cout << "slave received file:" << command << endl;
-			write_file(file_name ,command,size_command+1);
+			write_file(file_name ,command,size_command-1);
 			free(command);
 			free(file_name);
 			break;
@@ -175,6 +183,16 @@ void master()
 				send_string(file, machine->id, TAG_FILE);
 			}
 			
+			for(vector<string>::iterator it=node->listFilesDependencies.begin(); it!=node->listFilesDependencies.end();++it)
+			{
+				string file_name = (*it);
+				string file = read_file(file_name);
+				cout << "master sending file_name:" << file_name << " " <<  " node:" << node->id << " to:" << machine->id << endl;
+				send_string(file_name, machine->id, TAG_FILE_NAME);
+				cout << "master sending file:" << file << " " <<  " node:" << node->id << " to:" << machine->id << endl;
+				send_string(file, machine->id, TAG_FILE);
+			}
+			
 			string file_name = node->name;
 			cout << "master sending file_name:" << file_name << " " <<  " node:" << node->id << " to:" << machine->id << endl;
 			send_string(file_name, machine->id, TAG_FILE_NAME);
@@ -216,10 +234,10 @@ void master()
 				file_name = (char*)malloc(sizeof(char)*( node->name.size() + 1));
 				strncpy(file_name,  node->name.c_str(), node->name.size() + 1);
 								
-				file = (char*)malloc(sizeof(char)*(size_file+1));
-				MPI_Recv(file, size_file+1, MPI_CHAR, source, MPI_ANY_TAG, MPI_COMM_WORLD, &status);	
-				cout << "master received file_name: "<< file_name << " file: " << file << endl;
-				write_file(file_name ,file,size_file+1);
+				file = (char*)malloc(sizeof(char)*(size_file));
+				MPI_Recv(file, size_file, MPI_CHAR, source, MPI_ANY_TAG, MPI_COMM_WORLD, &status);	
+				cout << "master received file_name: "<< file_name << " file: " << file << " size: " << size_file << endl;
+				write_file(file_name ,file,size_file-1);
 				free(file);
 				free(file_name);
 
@@ -330,9 +348,9 @@ int main(int argc, char **argv)
 /*
 	string data = read_file("a");
 	cout << data << endl;
-	
-	write_file("b", data.c_str(), data.size());
-*/
+*/	
+	//write_file("b", data.c_str(), data.size());
+
 /*
 	int i = 13;
 	char* a = new char[8];
