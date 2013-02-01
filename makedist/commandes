@@ -1,6 +1,42 @@
-charloal@ensipc107:~/partage/makedist$ ./makedist Makefile_sample > graph.dot
-charloal@ensipc107:~/partage/makedist$ dot graph.dot  -Tpng > graph.png
-charloal@ensipc107:~/partage/makedist$ shotwell graph.png 
+ ./makedist Makefile_sample > graph.dot
+ dot graph.dot  -Tpng > graph.png
+ shotwell graph.png 
 
 
-mpirun -np 2 --hostfile hostfile.txt makedist Makefile_sample2
+mpirun -x PATH --hostfile hostfile.txt makedist Makefile
+
+PATH=/home/charloal/partage/Sys_Dist/makedist/makefiles/matrix:$PATH
+PATH=/home/charloal/partage/Sys_Dist/makedist/:$PATH
+
+nmap -sP 195.221.227.* 195.221.229.* | grep "ensipc" | cut -f 5 -d" "
+
+clean-machine.sh
+
+generate_makefile.pl "taille" > Makefile
+
+(taille définit le grain de la découpe)
+
+random_matrix.pl 10 10 > a
+random_matrix.pl 10 10 > b
+
+
+
+time mpirun -x PATH --hostfile hostfile.txt makedist Makefile
+clean-machines.sh > new
+make clean > new
+rm new
+
+
+PATH=/home/charloal/partage/Sys_Dist/makedist/makefiles/matrix:$PATH
+PATH=/home/charloal/partage/Sys_Dist/makedist/:$PATH
+touch Makefile
+touch a
+touch b
+generate_makefile.pl 5 > Makefile
+random_matrix.pl 1000 1000 > a
+random_matrix.pl 1000 1000 > b
+time mpirun -x PATH --hostfile hostfile.txt makedist Makefile
+clean-machines.sh > new
+make clean > new
+rm new
+

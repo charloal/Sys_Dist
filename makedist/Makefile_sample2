@@ -1,8 +1,11 @@
-list.txt : list1.txt list2.txt
-	touch list.txt ; cat list1.txt list2.txt > list.txt
+list.txt : list1.txt list2.txt list3.txt
+	touch list.txt ; cat list1.txt list2.txt list3.txt > list.txt
 
 list1.txt:
 	touch list1.txt ; echo "a" > list1.txt
 
-list2.txt: commandes
+list2.txt:
 	touch list2.txt ; echo "b" > list2.txt
+
+list3.txt:
+	touch list3.txt ; echo "c" > list3.txt

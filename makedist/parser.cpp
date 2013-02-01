@@ -7,7 +7,7 @@
 #include "parser.h"
 #include "Node.h"
 
-
+#include <algorithm>
 
 using namespace std;
 
@@ -16,14 +16,22 @@ using namespace std;
  */
 string *getLine(ifstream *file)
 {
-	char line_char[4096];
+  /*
+	char line_char[13000];
 	do {
-		file->getline(line_char,4096);
+		file->getline(line_char,13000);
+//getline (in_file, *file);
 #ifdef DEBUG
 		cout << line_char << endl;
 #endif
-	} while ((strcmp(line_char,"")==0) && (!file->eof()) );
-	return new string(line_char);
+	} while (((strcmp(line_char,"")==0) || ('#' == line_char[0])) && (!file->eof()) );
+	*/
+  
+	string *line = new string();
+	do {
+	      getline(*file, *line);
+	} while ( (((*line)[0] == '#') || (line->size() == 0)) && (!file->eof()));
+	return line;
 }
 
 /*
@@ -58,6 +66,7 @@ vector<string> *getDependencies(string *line)
 	if(string::npos==pos) {
 		return NULL;
 	}
+	replace( line->begin(), line->end(), '\t', ' ' );
 	pos++;
 	size_t pos_end = pos;
 	while(pos_end!=string::npos) {
@@ -84,20 +93,20 @@ vector<string> *getDependencies(string *line)
 /*
  * Extract commands from file and return a vector with all commands (as strings)
  */
-vector<string> *getCommands(ifstream *file)
-{
-#ifdef DEBUG
-	cout << "GETCOMMANDS" << endl;
-#endif
-	vector<string> *commands = new vector<string>;
-	string *str = getLine(file);
-	while( (str->find(":")==string::npos)
-			&& (strcmp(str->c_str(),"")==0)
-			&& (!file->eof()) ) {
-		commands->push_back(*str);
-	}
-	return commands;
-}
+// vector<string> *getCommands(ifstream *file)
+// {
+// #ifdef DEBUG
+// 	cout << "GETCOMMANDS" << endl;
+// #endif
+// 	vector<string> *commands = new vector<string>;
+// 	string *str = geLine(&file);
+// 	while( (str->find(":")==string::npos)
+// 			&& (strcmp(str->c_str(),"")==0)
+// 			&& (!file->eof()) ) {
+// 		commands->push_back(*str);
+// 	}
+// 	return commands;
+// }
 
 /*
  * Print each node inside nodes
@@ -107,12 +116,12 @@ void printNodes(map<const char*, Node*> nodes)
 	for(map<const char*,Node*>::iterator it=nodes.begin(); it!=nodes.end();++it) {
 		Node node = *((*it).second);
 		int i = node.id_global;
-		cout << node << endl;
+		cout << "\""<<  node << "\""<< endl;
 		for(list<Node*>::iterator it_dep=node.listDependencies.begin();it_dep!=node.listDependencies.end();++it_dep) {
-			cout << "\t" << *(*it_dep) << endl;
+			cout << "\t cible:" << "\""<< *(*it_dep) << "\""<< endl;
 		}
 		for(vector<string>::iterator it_dep=node.listFilesDependencies.begin();it_dep!=node.listFilesDependencies.end();++it_dep) {
-			cout << "\t" << *it_dep << endl;
+			cout << "\t files:" << "\""<< *it_dep << "\"" << endl;
 		}
 	}
 }
@@ -129,12 +138,11 @@ void printGraph(vector<Node*> nodes)
 	cout << "digraph graphName  {" << endl;
 	for(vector<Node*>::iterator it=nodes.begin(); it!=nodes.end();++it) {
 		Node *node = *it;
-		//cout << *node << endl;
 		for(list<Node*>::iterator it_dep=node->listDependencies.begin();it_dep!=node->listDependencies.end();++it_dep) {
-			cout << "\t\"" << node->id << " " << node->name << " " << node->id_machine << " " << node->status << "\" -> \"" << (*it_dep)->id << " " <<*(*it_dep) << " " << (*it_dep)->id_machine << " " << (*it_dep)->status << "\" [color=\"red\"]"<< endl;
+			cout << "\t\"" << node->name << " " << node->id_machine << "\" -> \"" << *(*it_dep) << " " << (*it_dep)->id_machine <<  "\" [color=\"red\"]"<< endl;
 		}
 		for(list<Node*>::iterator it_dep=node->listDependant.begin();it_dep!=node->listDependant.end();++it_dep) {
-			cout << "\t\"" << node->id << " " << node->name << " " << node->id_machine << " " << node->status << "\" -> \"" << (*it_dep)->id << " " <<*(*it_dep) << " " << (*it_dep)->id_machine << " " << (*it_dep)->status << "\" [color=\"blue\"]"<< endl;
+			cout << "\t\"" << node->name << " " << node->id_machine << "\" -> \"" << *(*it_dep) << " " << (*it_dep)->id_machine << "\" [color=\"blue\"]"<< endl;
 		}
 	}
 	cout << "}" << endl;
@@ -172,7 +180,7 @@ vector<Node*> parse(char *argv)
 #ifdef DEBUG
 			cout << "command: " << *line_str << endl;
 #endif
-			commands->push_back(*line_str);
+			  commands->push_back(*line_str);
 			line_str = getLine(&file);
 		}
 		node_string node_str;
@@ -224,7 +232,7 @@ vector<Node*> parse(char *argv)
 			}
 		}
 	}
-	printNodes(list_nodes);
+	//printNodes(list_nodes);
 
 	// Convert map to vector for return
 	vector<Node*> vector_nodes;
@@ -232,7 +240,6 @@ vector<Node*> parse(char *argv)
 	for(map<const char*,Node*>::iterator it_map=list_nodes.begin();it_map!=list_nodes.end();++it_map) {
 		Node *node = (*it_map).second;
 		if (node!=NULL) {
-			//vector_nodes.push_back(node);
 			vector_nodes[node->id] = node;
 #ifdef DEBUG
 			cout << (*it_map).first << "\t" << *node << endl;

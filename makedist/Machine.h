@@ -19,6 +19,8 @@ class Machine
 		int current_node;
 		int status;
 
+		vector<string> files;
+		
 		Machine();
 		Machine(int _id);
 };

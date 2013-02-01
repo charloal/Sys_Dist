@@ -27,6 +27,7 @@ class Node
 		list<Node*> listDependant;
 		vector<string> listFilesDependencies;
 		vector<string> commands;
+		
 		int id_machine;
 		int status;
 
