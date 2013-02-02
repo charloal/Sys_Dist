@@ -17,6 +17,7 @@
 //#define COUT
 //#define ENVOI_INTELLIGENT
 
+
 vector<Node*> nodes; // All nodes of the graph
 list<Node*> nodes_ready;
 
@@ -214,6 +215,7 @@ void master()
 #ifdef COUT
 					cout << "master sending file:" << file_name << " " <<  " node:" << node->id << " to:" << machine->id << endl;
 #endif
+			
 					send_string(file_name, machine->id, TAG_FILE_NAME);
 					send_string(file, machine->id, TAG_FILE);
 					

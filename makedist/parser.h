@@ -7,7 +7,6 @@
 #include <vector>
 #include <map>
 #include "Node.h"
-#include "graph.h"
 //#define DEBUG 1
 
 typedef struct _node_string {
